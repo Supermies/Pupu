@@ -128,20 +128,20 @@ def initial_bunny():
 
 def new_bunny(row, column):
     global counter
-    if world[(row-1, column)] != None:
+    if world[(row-1, column)] == None:
         world[(row-1, column)] = Pupu(colour[randint(0,3)],0,counter)
         counter += 1
-    elif world[(row+1, column)] != None:
+    elif world[(row+1, column)] == None:
         world[(row+1, column)] = Pupu(colour[randint(0,3)],0,counter)
         counter += 1
-    elif world[(row, column-1)] != None:
+    elif world[(row, column-1)] == None:
         world[(row, column-1)] = Pupu(colour[randint(0,3)],0,counter)
         counter += 1
-    elif world[(row, column)+1] != None:
+    elif world[(row, column)+1] == None:
         world[(row, column+1)] = Pupu(colour[randint(0,3)],0,counter)
         counter += 1
 
-def adjacent_bunnies(row, column):
+def adjacent_make_bunnies(row, column):
     if world[(row, column)].sex == 1:
         if world[(row-1, column)] and world[(row-1, column)].sex == 0:
             new_bunny(row, column)
@@ -151,6 +151,16 @@ def adjacent_bunnies(row, column):
             new_bunny(row, column)
         elif world[(row, column+1)] and world[(row, column+1)].sex == 0:
             new_bunny(row, column)
+
+def adjacent_move_bunnies(row, column):
+    global adjacent_positions
+    free_positions = []
+    free_positions = adjacent_positions
+    for i in range(len(free_positions)):
+        if world[free_positions[i]]:
+            del free_positions[i]
+
+
 
 # Define some colors
 BLACK = (0, 0, 0)
@@ -204,7 +214,9 @@ while True:
             color = GREEN
             if world[(row, column)]:
                 color = BROWN
-                adjacent_bunnies(row, column)
+                adjacent_positions = [(row-1, column), (row+1, column), (row, column-1), (row, column-1)]
+                adjacent_make_bunnies(row, column)
+                adjacent_move_bunnies(row, column)
 
             pygame.draw.rect(screen,
                              color,
