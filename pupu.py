@@ -11,7 +11,7 @@ BROWN = (150, 100, 0)
 
 colour = (WHITE, BLACK, RED, BROWN)
 counter = 1
-N = 60
+N = 80
 
 def world():
     world = {}
@@ -27,13 +27,15 @@ def world():
 
 class Pupu():
     """A class representing a single pupu"""
-    def __init__(self, colour, age, name):
+    def __init__(self, colour, age, name, mother, father):
         """bunnies colour and age"""
         self.colour = colour
         self.age = age
         self.name = name
+        self.mother = mother
+        self.father = father
         self.sex = randint(0,1)
-        self.death = 10 + randint(1,4)
+        self.death = 360 + randint(1,360)
         self.moved = 0
 
     def aging(self):
@@ -41,130 +43,35 @@ class Pupu():
         self.age += 1
         return self.age + 1
 
-    # def pupu_move(self):
-    #     global positions
-    #     newx = self.x + randrange(-1, 2)
-    #     newy = self.y + randrange(-1, 2)
-    #     newpos = (newx, newy)
-    #     print((self.x, self.y))
-    #     print(newpos)
-    #     if newpos in positions:
-    #         positions = [pos for pos in positions if pos != newpos]
-    #         positions.append((self.x, self.y))
-    #         self.x = newpos[0]
-    #         self.y = newpos[1]
-    # def __str__(self):
-    #     return "bunny number:" + str(self.name)
-
-# class Puput:
-#
-#     def __init__(self):
-#         self.puput = [] # start with an empty list
-#         global counter
-#         global positions
-#         positions = posishuffle(positions)
-#         for i in range(10):
-#             xy = positions.pop()
-#             self.puput.append(Pupu(colour[randint(0,3)],0,counter,xy[0], xy[1]))
-#             counter += 1
-#
-#     def lisapupu(self,numbunnies,positions):
-#         global counter
-#         collision = True
-#         positions = posishuffle(positions)
-#         for i in range(0,numbunnies):
-#             xy = positions.pop()
-#             self.puput.append(Pupu(colour[randint(0,3)],0,counter,xy[0], xy[1]))
-#             # bunnylist.append((newx,newy))
-#             counter += 1
-#
-#
-#     def shuffle(self):
-#         shuffle(self.puput)
-
-
-#
-# def kill_bunnies():
-#     i = 0
-#     for pupu in world.puput:
-#         i += 1
-#         pupu.aging()
-#         if pupu.age == pupu.death:
-#             print("pupu number: " + str(pupu.name) + " has died")
-#             print("it was " + str(pupu.age) + " years old")
-#             xy = (pupu.x, pupu.y)
-#             del world.puput[i-1]
-#             positions.append(xy)
-#
-# def make_bunnies(pupu):
-#     # males = 0
-#     # females = 0
-#     # global positions
-#     # for pupu in world.puput:
-#     #     if pupu.age > 1:
-#     #         if pupu.sex == 1:
-#     #             males += 1
-#     #         else:
-#     #             females += 1
-#     # if males > 0:
-#     #     world.lisapupu(females,positions)
-#     newpos = [(self.x - 1, self.y),(self.x + 1, self.y), (self.x, self.y - 1), (self.x, self.y + 1)]
-#     newbunny = 1
-#     while newbunny:
-#         for i in newpos:
-#             if i in positions:
-#                 positions = [pos for pos in positions if pos != i]
-
-
-#
-# def kill_half():
-#     i = 0
-#     for pupu in world.puput:
-#         i += 1
-#         kill = randint(0,1)
-#         if kill == True:
-#             xy = (pupu.x, pupu.y)
-#             del world.puput[i-1]
-#             positions.append(xy)
 
 def initial_bunny():
     global counter
     x = randint(0, N - 1)
     y = randint(0, N - 1)
-    world[(x, y)] = Pupu(colour[randint(0,3)],0,counter)
+    world[(x, y)] = Pupu(colour[randint(0,3)],0,counter,counter,counter)
     counter += 1
 
-def new_bunny(row, column):
+def adjacent_make_bunnies(row, column, free_positions):
+    make_bunny = False
+    new_bunny_position = ()
     global counter
-    if world[(row-1, column)] == None:
-        world[(row-1, column)] = Pupu(colour[randint(0,3)],0,counter)
+    for i in range(len(free_positions)):
+        if world[free_positions[i]] == None:
+            new_bunny_position = free_positions[i]
+        elif world[free_positions[i]].sex == 0 and world[free_positions[i]].age > 26 and world[free_positions[i]].father != world[(row, column)].father and world[free_positions[i]].mother != world[(row, column)].mother and world[free_positions[i]].mother != world[(row, column)].name and world[free_positions[i]].name != world[(row, column)].father:
+            make_bunny = True
+            father = world[free_positions[i]].name
+    if make_bunny and new_bunny_position:
+        world[new_bunny_position] = Pupu(world[(row, column)].colour,0,counter,world[(row, column)].name,father)
         counter += 1
-    elif world[(row+1, column)] == None:
-        world[(row+1, column)] = Pupu(colour[randint(0,3)],0,counter)
-        counter += 1
-    elif world[(row, column-1)] == None:
-        world[(row, column-1)] = Pupu(colour[randint(0,3)],0,counter)
-        counter += 1
-    elif world[(row, column)+1] == None:
-        world[(row, column+1)] = Pupu(colour[randint(0,3)],0,counter)
-        counter += 1
-
-def adjacent_make_bunnies(row, column):
-    if world[(row, column)].sex == 1:
-        if world[(row-1, column)] and world[(row-1, column)].sex == 0:
-            new_bunny(row, column)
-        elif world[(row+1, column)] and world[(row-1, column)].sex == 0:
-            new_bunny(row, column)
-        elif world[(row, column-1)] and world[(row, column-1)].sex == 0:
-            new_bunny(row, column)
-        elif world[(row, column+1)] and world[(row, column+1)].sex == 0:
-            new_bunny(row, column)
 
 def adjacent_move_bunnies(row, column, free_positions):
     for i in range(len(free_positions)):
         if world[free_positions[i]] == None:
             world[free_positions[i]] = world[row, column]
             world[row, column] = None
+    world[(row, column)] = None
+
 
 def free_positions():
     adjacent_positions = [(row-1, column), (row+1, column), (row, column-1), (row, column+1)]
@@ -187,7 +94,7 @@ h = 10
 m = 1
 
 world = world()
-for i in range(0,100):
+for i in range(0,300):
     initial_bunny()
 pygame.init()
 
@@ -231,16 +138,30 @@ while True:
                               (m + h) * row + m,
                               w,
                               h])
+    bunny_count = 0
     for row in range(N):
         for column in range(N):
             positions = free_positions()
-            if world[(row, column)]:
-        #        adjacent_make_bunnies(row, column)
+            if world[(row, column)] and world[(row, column)].age <= world[(row, column)].death:
+                bunny_count += 1
+                world[(row, column)].aging()
                 if world[(row, column)].moved == 1:
                     world[(row, column)].moved = 0
                 else:
                     world[(row, column)].moved = 1
+                    if world[(row, column)].sex == 1 and world[(row, column)].age > 27:
+                        adjacent_make_bunnies(row, column, positions)
                     adjacent_move_bunnies(row, column, positions)
+            elif world[(row, column)] and world[(row, column)].age > world[(row, column)].death:
+                world[(row, column)] = None
+
+    if bunny_count > 1000:
+        for row in range(N):
+            for column in range(N):
+                if world[(row, column)]:
+                    kill_bunny = randint(0,1)
+                    if kill_bunny > 0:
+                        world[(row, column)].age += 50
     # --- Drawing code should go here
 
     # --- Go ahead and update the screen with what we've drawn.
@@ -248,11 +169,11 @@ while True:
     pygame.display.flip()
 
     # --- Limit to 60 frames per second
-    clock.tick(24)
+    #clock.tick(12)
 
 # Close the window and quit.
-    #time.sleep(0.1)
+    #time.sleep(2)
 
     end = time.time()
-    print(1 / (end - start))
+    #print(1 / (end - start))
 pygame.quit()
