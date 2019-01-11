@@ -2,9 +2,16 @@ import pygame, time
 from random import randint, shuffle, randrange
 #import numpy as np
 #bunnyImg = pygame.image.load('pupu.jpg')
-colour = ('white', 'brown', 'black', 'spotted')
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GREEN = (0, 150, 0)
+DARK = (0, 100, 0)
+RED = (255, 0, 0)
+BROWN = (150, 100, 0)
+
+colour = (WHITE, BLACK, RED, BROWN)
 counter = 1
-N = 60 - 1
+N = 60
 
 def world():
     world = {}
@@ -27,6 +34,7 @@ class Pupu():
         self.name = name
         self.sex = randint(0,1)
         self.death = 10 + randint(1,4)
+        self.moved = 0
 
     def aging(self):
         age = self.age
@@ -121,8 +129,8 @@ class Pupu():
 
 def initial_bunny():
     global counter
-    x = randint(0, N)
-    y = randint(0, N)
+    x = randint(0, N - 1)
+    y = randint(0, N - 1)
     world[(x, y)] = Pupu(colour[randint(0,3)],0,counter)
     counter += 1
 
@@ -152,23 +160,26 @@ def adjacent_make_bunnies(row, column):
         elif world[(row, column+1)] and world[(row, column+1)].sex == 0:
             new_bunny(row, column)
 
-def adjacent_move_bunnies(row, column):
-    global adjacent_positions
-    free_positions = []
-    free_positions = adjacent_positions
+def adjacent_move_bunnies(row, column, free_positions):
     for i in range(len(free_positions)):
-        if world[free_positions[i]]:
-            del free_positions[i]
+        if world[free_positions[i]] == None:
+            world[free_positions[i]] = world[row, column]
+            world[row, column] = None
 
-
+def free_positions():
+    adjacent_positions = [(row-1, column), (row+1, column), (row, column-1), (row, column+1)]
+    if row == 0:
+        adjacent_positions.remove((row-1, column))
+    if row == N - 1:
+        adjacent_positions.remove((row+1, column))
+    if column == 0:
+        adjacent_positions.remove((row, column-1))
+    if column == N - 1:
+        adjacent_positions.remove((row, column+1))
+    shuffle(adjacent_positions)
+    return adjacent_positions
 
 # Define some colors
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GREEN = (0, 150, 0)
-DARK = (0, 100, 0)
-RED = (255, 0, 0)
-BROWN = (150, 100, 0)
 
 #Grid
 w = 10
@@ -176,7 +187,7 @@ h = 10
 m = 1
 
 world = world()
-for i in range(0,10):
+for i in range(0,100):
     initial_bunny()
 pygame.init()
 
@@ -213,17 +224,23 @@ while True:
         for column in range(N):
             color = GREEN
             if world[(row, column)]:
-                color = BROWN
-                adjacent_positions = [(row-1, column), (row+1, column), (row, column-1), (row, column-1)]
-                adjacent_make_bunnies(row, column)
-                adjacent_move_bunnies(row, column)
-
+                color = world[(row, column)].colour
             pygame.draw.rect(screen,
                              color,
                              [(m + w) * column + m,
                               (m + h) * row + m,
                               w,
                               h])
+    for row in range(N):
+        for column in range(N):
+            positions = free_positions()
+            if world[(row, column)]:
+        #        adjacent_make_bunnies(row, column)
+                if world[(row, column)].moved == 1:
+                    world[(row, column)].moved = 0
+                else:
+                    world[(row, column)].moved = 1
+                    adjacent_move_bunnies(row, column, positions)
     # --- Drawing code should go here
 
     # --- Go ahead and update the screen with what we've drawn.
@@ -231,11 +248,11 @@ while True:
     pygame.display.flip()
 
     # --- Limit to 60 frames per second
-#    clock.tick(60)
+    clock.tick(24)
 
 # Close the window and quit.
-    #time.sleep(60)
+    #time.sleep(0.1)
 
     end = time.time()
-    print(end - start)
+    print(1 / (end - start))
 pygame.quit()
