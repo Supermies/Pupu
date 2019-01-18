@@ -1,15 +1,15 @@
 import pygame, time
 from random import randint, shuffle, randrange
 #import numpy as np
-#bunnyImg = pygame.image.load('pupu.jpg')
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 150, 0)
 DARK = (0, 100, 0)
-RED = (255, 0, 0)
+DARKBROWN = (100, 80, 0)
 BROWN = (150, 100, 0)
+GREY = (200, 200, 200)
 
-colour = (WHITE, BLACK, RED, BROWN)
+colour = (WHITE, BLACK, DARKBROWN, BROWN)
 counter = 1
 N = 80
 
@@ -51,6 +51,12 @@ def initial_bunny():
     world[(x, y)] = Pupu(colour[randint(0,3)],0,counter,counter,counter)
     counter += 1
 
+def point_make_bunny(row, column):
+    global counter
+    world[(row, column)] = Pupu(colour[randint(0,3)],0,counter,counter,counter)
+    counter += 1
+
+
 def adjacent_make_bunnies(row, column, free_positions):
     make_bunny = False
     new_bunny_position = ()
@@ -58,7 +64,7 @@ def adjacent_make_bunnies(row, column, free_positions):
     for i in range(len(free_positions)):
         if world[free_positions[i]] == None:
             new_bunny_position = free_positions[i]
-        elif world[free_positions[i]].sex == 0 and world[free_positions[i]].age > 26 and world[free_positions[i]].father != world[(row, column)].father and world[free_positions[i]].mother != world[(row, column)].mother and world[free_positions[i]].mother != world[(row, column)].name and world[free_positions[i]].name != world[(row, column)].father:
+        elif world[free_positions[i]].sex == 0 and world[free_positions[i]].age > 180 and world[free_positions[i]].father != world[(row, column)].father and world[free_positions[i]].mother != world[(row, column)].mother and world[free_positions[i]].mother != world[(row, column)].name and world[free_positions[i]].name != world[(row, column)].father:
             make_bunny = True
             father = world[free_positions[i]].name
     if make_bunny and new_bunny_position:
@@ -89,13 +95,13 @@ def free_positions():
 # Define some colors
 
 #Grid
-w = 10
-h = 10
+w = 14
+h = 14
 m = 1
 
 world = world()
-for i in range(0,300):
-    initial_bunny()
+# for i in range(0,300):
+#     initial_bunny()
 pygame.init()
 
 # Set the width and height of the screen [width, height]
@@ -110,10 +116,20 @@ done = False
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
 while True:
+    bunnyImg = pygame.image.load('valkpupu.png').convert_alpha()
+
     start = time.time()
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            done = True
+    for event in pygame.event.get():  # User did something
+        if event.type == pygame.QUIT:  # If user clicked close
+            done = True  # Flag that we are done so we exit this loop
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            # User clicks the mouse. Get the position
+            pos = pygame.mouse.get_pos()
+           # Change the x/y screen coordinates to grid coordinates
+            column = pos[0] // (w + m)
+            row = pos[1] // (h + m)
+            point_make_bunny(row, column)
+            print("Click ", pos, "Grid coordinates: ", row, column)
 
     # --- Game logic should go here
 
@@ -129,10 +145,12 @@ while True:
         # Draw the grid
     for row in range(N):
         for column in range(N):
-            color = GREEN
+            color = DARK
             if world[(row, column)]:
-                color = world[(row, column)].colour
-            pygame.draw.rect(screen,
+                #color = world[(row, column)].colour
+                screen.blit(bunnyImg,(column * (m + w), row * (m + h)))
+            else:
+                pygame.draw.rect(screen,
                              color,
                              [(m + w) * column + m,
                               (m + h) * row + m,
@@ -149,7 +167,7 @@ while True:
                     world[(row, column)].moved = 0
                 else:
                     world[(row, column)].moved = 1
-                    if world[(row, column)].sex == 1 and world[(row, column)].age > 27:
+                    if world[(row, column)].sex == 1 and world[(row, column)].age > 180:
                         adjacent_make_bunnies(row, column, positions)
                     adjacent_move_bunnies(row, column, positions)
             elif world[(row, column)] and world[(row, column)].age > world[(row, column)].death:
@@ -158,10 +176,10 @@ while True:
     if bunny_count > 1000:
         for row in range(N):
             for column in range(N):
-                if world[(row, column)]:
+                if world[(row, column)] and world[(row, column)].age > 180:
                     kill_bunny = randint(0,1)
                     if kill_bunny > 0:
-                        world[(row, column)].age += 50
+                        world[(row, column)].age += 100
     # --- Drawing code should go here
 
     # --- Go ahead and update the screen with what we've drawn.
@@ -169,7 +187,7 @@ while True:
     pygame.display.flip()
 
     # --- Limit to 60 frames per second
-    #clock.tick(12)
+    clock.tick(12)
 
 # Close the window and quit.
     #time.sleep(2)
