@@ -9,7 +9,12 @@ DARKBROWN = (100, 80, 0)
 BROWN = (150, 100, 0)
 GREY = (200, 200, 200)
 
-colour = (WHITE, BLACK, DARKBROWN, BROWN)
+bunnyvalk = pygame.image.load('valkpupu.png')
+bunnyrusk = pygame.image.load('ruskpupu.png')
+bunnytumru = pygame.image.load('tumrupupu.png')
+bunnytapla = pygame.image.load('taplapupu.png')
+
+colour = (bunnyvalk, bunnyrusk, bunnytumru, bunnytapla)
 counter = 1
 N = 80
 
@@ -116,8 +121,10 @@ done = False
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
 while True:
-    bunnyImg = pygame.image.load('valkpupu.png').convert_alpha()
-
+    bunnyvalk = pygame.image.load('valkpupu.png').convert_alpha()
+    bunnyrusk = pygame.image.load('ruskpupu.png').convert_alpha()
+    bunnytumru = pygame.image.load('tumrupupu.png').convert_alpha()
+    bunnytapla = pygame.image.load('taplapupu.png').convert_alpha()
     start = time.time()
     for event in pygame.event.get():  # User did something
         if event.type == pygame.QUIT:  # If user clicked close
@@ -148,7 +155,7 @@ while True:
             color = DARK
             if world[(row, column)]:
                 #color = world[(row, column)].colour
-                screen.blit(bunnyImg,(column * (m + w), row * (m + h)))
+                screen.blit(world[(row, column)].colour,(column * (m + w), row * (m + h)))
             else:
                 pygame.draw.rect(screen,
                              color,
