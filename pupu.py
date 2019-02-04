@@ -1,5 +1,9 @@
 import pygame, time
 from random import randint, shuffle, randrange
+import numpy as np
+import matplotlib.pyplot as plt; plt.rcdefaults()
+import matplotlib.pyplot as plt
+
 #import numpy as np
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -20,7 +24,7 @@ N = 80
 
 def world():
     world = {}
-    positions = []
+    #positions = []
     posx = [x for x in range(0, N)]
     posy = [y for y in range(0, N)]
     for x in posx:
@@ -105,6 +109,7 @@ h = 14
 m = 1
 
 world = world()
+
 # for i in range(0,300):
 #     initial_bunny()
 pygame.init()
@@ -114,17 +119,21 @@ size = ((N * w + N * m + m), (N * h + N * m + m))
 screen = pygame.display.set_mode(size)
 
 pygame.display.set_caption("My Game")
-
+bunnyvalk = pygame.image.load('valkpupu.png').convert_alpha()
+bunnyrusk = pygame.image.load('ruskpupu.png').convert_alpha()
+bunnytumru = pygame.image.load('tumrupupu.png').convert_alpha()
+bunnytapla = pygame.image.load('taplapupu.png').convert_alpha()
 # Loop until the user clicks the close button.
 done = False
 
 # Used to manage how fast the screen updates
 clock = pygame.time.Clock()
 while True:
-    bunnyvalk = pygame.image.load('valkpupu.png').convert_alpha()
-    bunnyrusk = pygame.image.load('ruskpupu.png').convert_alpha()
-    bunnytumru = pygame.image.load('tumrupupu.png').convert_alpha()
-    bunnytapla = pygame.image.load('taplapupu.png').convert_alpha()
+    y_pos = {}
+    for i in range(721):
+        y_pos[(i)] = 0
+
+
     start = time.time()
     for event in pygame.event.get():  # User did something
         if event.type == pygame.QUIT:  # If user clicked close
@@ -169,6 +178,8 @@ while True:
             positions = free_positions()
             if world[(row, column)] and world[(row, column)].age <= world[(row, column)].death:
                 bunny_count += 1
+                y_pos[world[(row, column)].age] += 1
+
                 world[(row, column)].aging()
                 if world[(row, column)].moved == 1:
                     world[(row, column)].moved = 0
@@ -184,9 +195,15 @@ while True:
         for row in range(N):
             for column in range(N):
                 if world[(row, column)] and world[(row, column)].age > 180:
-                    kill_bunny = randint(0,1)
+                    kill_bunny = randint(0,3)
                     if kill_bunny > 0:
-                        world[(row, column)].age += 100
+                        world[(row, column)].death -= 100
+
+    plt.cla()
+    plt.plot(y_pos.keys(), y_pos.values())
+    plt.draw()
+    plt.pause(.001)
+    #plt.show()
     # --- Drawing code should go here
 
     # --- Go ahead and update the screen with what we've drawn.
@@ -195,10 +212,11 @@ while True:
 
     # --- Limit to 60 frames per second
     clock.tick(12)
-
+    #print(y_pos)
 # Close the window and quit.
     #time.sleep(2)
 
     end = time.time()
     #print(1 / (end - start))
+
 pygame.quit()
